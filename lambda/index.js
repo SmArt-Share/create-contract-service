@@ -15,25 +15,78 @@
  */
 'use strict';
 
+//This is node module.  That is all.
+const https = require('https');
+
 exports.handler = async (event, context) => {
-    console.log(event);
-    return createChain();
+    //TODO create base64 fn, get keys for atleast our test user
+    let externalIds = [
+        // base64(PUBLIC_KEY),
+        // base64(YOUR_PRIVATE_KEY),
+        //DynamoDB Partition key
+        base64("DRN00006879"),
+        //DynamoDB sort key
+        // base64("CHANGE_TO_TIME")
+    ];
+    // let content = base64(event.content);
+    let content = base64("Hello");
+    console.log(externalIds, content);
+    let chain = await createChain(externalIds, content);
+    console.log(JSON.stringify(chain));
+    return "You had " + context.getRemainingTimeInMillis() + " ms remaining.";
 
 }
 
-function createChain(){
-    var data = JSON.stringify(false);
 
-    var xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
-
-    xhr.addEventListener("readystatechange", function () {
-        if (this.readyState === this.DONE) {
-            console.log(this.responseText);
+async function createChain(externalIds, content) {
+    return new Promise(function (resolve, reject) {
+        var json = {
+            external_ids: externalIds,
+            content: content
         }
+        let body = JSON.stringify(json);
+        let path = '/v2/chains';
+        let options = {
+            host: "api-2445581893456.production.gw.apicast.io",
+            path: path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'user-key': process.env.FACTOM_API_KEY
+            }
+        };
+
+        let req = https.request(options, (res) => {
+            res.on('data', (d) => {
+                let str = '';
+                str += d;
+                let dataFromMessenger = JSON.parse(str);
+                try {
+                    let currentTime = new Date().getTime().toString();
+                    let outgoingMessageObj = {
+                        outgoing_time: currentTime,
+                        outgoingMessage: json,
+                        dataFromMessenger: dataFromMessenger
+                    };
+                    resolve(outgoingMessageObj);
+                } catch (ex) {
+                    console.log('problem with sendAll ex: ' + ex);
+                    reject(ex);
+                }
+
+            });
+        });
+
+        req.on('error', (e) => {
+            console.log('problem with request e: ' + e);
+            reject(e);
+        });
+        req.write(body);
+        req.end();
     });
-
-    xhr.open("POST", "https://api-2445581893456.production.gw.apicast.io/v2/chains");
-
-    xhr.send(data);
+}
+function base64(data) {
+    let buff = new Buffer(data);
+    let base64data = buff.toString('base64');
+    return base64data;
 }
