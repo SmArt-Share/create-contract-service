@@ -1,0 +1,13 @@
+{
+  "name": "create-contract-service",
+  "version": "1.0.0",
+  "description": "This is a service to connect the front end to Factom to create the initial contract and the rules for the smart contract.",
+  "readme": "This is a service to connect the front end to Factom to create the initial contract and the rules for the smart contract.",
+  "repository": "https://github.com/SmArt-Share/create-contract-service",
+  "main": "index.js",
+  "author": "j",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "https": "*"
+  }
+}
