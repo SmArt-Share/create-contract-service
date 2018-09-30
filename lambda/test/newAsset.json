@@ -6,13 +6,15 @@
                 "id": 1,
                 "name": "Amy Kabaria",
                 "paidAmount": 7000,
-                "percentOwnership": 0.5
+                "percentOwnership": 0.5,
+                "chainId": "002d7a4829316b0d2899698536922e21ddcd14c18a18e39b9c069ca5765fcd46"
             },
             {
                 "id": 2,
                 "name": "Ashlee Cannon",
                 "paidAmount": 3000,
-                "percentOwnership": 0.5
+                "percentOwnership": 0.5,
+                "chainId": "50a87ce91720c1adb57a598d8d5e11b44dfcb148c217de24fa4a293e33a3b18b"
             }
         ],
         "assetName": "Kanye West Bear",

@@ -65,7 +65,10 @@ exports.handler = async (event, context) => {
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             .then((obj) => {
                 factomObjs.push(obj);
-                let content = JSON.stringify(factomObjs[1].dataFromChain);
+                let content = JSON.stringify({
+                    chain_id: factomObjs[0].dataFromChain.chain_id,
+                    entry_hash: factomObjs[1].dataFromChain.entry_hash
+                });
                 return createEntriesInTheOtherStakeholderChains(externalIds, base64(content), factomObjs);
             })
             .then((obj) => {
@@ -198,7 +201,9 @@ async function createEntriesInTheOtherStakeholderChains(externalIds, content, fa
 
     return Promise.all(promiseArray)
         .then((obj) => {
-            factomObjs.push(obj);
+            obj.forEach(o => {
+                factomObjs.push(o);
+            })
         });
 
 }
