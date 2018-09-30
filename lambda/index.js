@@ -42,10 +42,12 @@ exports.handler = async (event, context) => {
         base64(currentTime)
     ];
 
+    let factomObjs = [];
+
     //create the asset chain with info about the app
     return createChain(appExternalIds, base64(initContent))
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);            
             //store data about the data from the initial form in the asset chain
             //TODO: seriously no validation of the data from the API!!
             let content = JSON.stringify(event);
@@ -53,54 +55,54 @@ exports.handler = async (event, context) => {
         })
         //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);
             let content = JSON.stringify(obj.dataFromChain);
             return createEntryInAssetChain('49b8359f2105925f150f8c957b97dcf10814443f2695c08c5b866308062a321d', externalIds, base64(content));
         })
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             return createEntryInAssetChain('e7e35f94986071e4bb3328ff062bcfb88f1cc8582a29615bc35ccaca3d0b7891', externalIds, obj.outgoingContent.content);
         })
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             return createEntryInAssetChain('3337d4e65ac6b6a276b9003ffd135c7f4726aeff44484a7286748a31ce254a39', externalIds, obj.outgoingContent.content);
         })
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             return createEntryInAssetChain('3c3cb9e652b3a3656d9b70f6e1c941736349315ec50cfbe9c9e90cbc149eda58', externalIds, obj.outgoingContent.content);
         })
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             return createEntryInAssetChain('2656db34389e008ee49e18faf4f130f5dd42f2265d1268ec0f59256a6d727b6a', externalIds, obj.outgoingContent.content);
         })
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             return createEntryInAssetChain('058258586f2178af69acff782e542a4e1f84dce3d7a7bfd5834f3a9390c58cb7', externalIds, obj.outgoingContent.content);
         })
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             return createEntryInAssetChain('6928f5efd7531025160e9d309d182546a29b0b8d3284766f4d5d6584c25cbe38', externalIds, obj.outgoingContent.content);
         })
         .then((obj) => {
-            console.log(JSON.stringify(obj));
+            factomObjs.push(obj);
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             return createEntryInAssetChain('30b221f597aa1b844f874361b80e6f9b4fd930ff2805a70d7532f3559c4ee8d4', externalIds, obj.outgoingContent.content);
         })
 
 
         .then((obj) => {
-            console.log(JSON.stringify(obj));
-            return "You had " + context.getRemainingTimeInMillis() + " ms remaining.";
+            factomObjs.push(obj);
+            return factomObjs;
         })
         .catch((e) => {
             console.log(e);
-            return "You had " + context.getRemainingTimeInMillis() + " ms remaining.";
+            return factomObjs;
         });
 
 }
