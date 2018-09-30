@@ -53,6 +53,11 @@ exports.handler = async (event, context) => {
             });
 
     } else if (event.newAsset) {
+        let members = event.newAsset.groupMembers;
+        let chainIdArray = [];
+        members.forEach((m) => {
+            chainIdArray.push(m.chainId);
+        })
         //create the asset chain with info about the app
         return createChain(externalIds, base64(initContent))
             .then((obj) => {
@@ -69,7 +74,7 @@ exports.handler = async (event, context) => {
                     chain_id: factomObjs[0].dataFromChain.chain_id,
                     entry_hash: factomObjs[1].dataFromChain.entry_hash
                 });
-                return createEntriesInTheOtherStakeholderChains(externalIds, base64(content), factomObjs);
+                return createEntriesInTheOtherStakeholderChains(externalIds, base64(content), factomObjs, chainIdArray);
             })
             .then((obj) => {
                 return obj;
@@ -183,10 +188,8 @@ async function createEntryInAssetChain(chainId, externalIds, content) {
 //Promise does not work yet
 //add the a dynamodb to look up the chain id based on the other stakeholder chain_ids including users
 //create entry in user(s), broker, insurance, movingCompany, iotDeviceCompany, security, appraisalCompany chains
-async function createEntriesInTheOtherStakeholderChains(externalIds, content, factomObjs) {
+async function createEntriesInTheOtherStakeholderChains(externalIds, content, factomObjs, chainIdArray) {
     let stakeholderChainIdArray = [
-        '49b8359f2105925f150f8c957b97dcf10814443f2695c08c5b866308062a321d',
-        'e7e35f94986071e4bb3328ff062bcfb88f1cc8582a29615bc35ccaca3d0b7891',
         '3337d4e65ac6b6a276b9003ffd135c7f4726aeff44484a7286748a31ce254a39',
         '3c3cb9e652b3a3656d9b70f6e1c941736349315ec50cfbe9c9e90cbc149eda58',
         '2656db34389e008ee49e18faf4f130f5dd42f2265d1268ec0f59256a6d727b6a',
@@ -194,6 +197,11 @@ async function createEntriesInTheOtherStakeholderChains(externalIds, content, fa
         '6928f5efd7531025160e9d309d182546a29b0b8d3284766f4d5d6584c25cbe38',
         '30b221f597aa1b844f874361b80e6f9b4fd930ff2805a70d7532f3559c4ee8d4'
     ];
+    //get the chain ids from the event
+    chainIdArray.forEach((c) => {
+        stakeholderChainIdArray.push(c);
+    })
+    //create promise array to send out record the new asset
     let promiseArray = [];
     stakeholderChainIdArray.forEach((e) => {
         promiseArray.push(createEntryInAssetChain(e, externalIds, content));
