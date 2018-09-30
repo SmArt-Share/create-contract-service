@@ -47,7 +47,7 @@ exports.handler = async (event, context) => {
     //create the asset chain with info about the app
     return createChain(appExternalIds, base64(initContent))
         .then((obj) => {
-            factomObjs.push(obj);            
+            factomObjs.push(obj);
             //store data about the data from the initial form in the asset chain
             //TODO: seriously no validation of the data from the API!!
             let content = JSON.stringify(event);
@@ -98,11 +98,11 @@ exports.handler = async (event, context) => {
 
         .then((obj) => {
             factomObjs.push(obj);
-            return factomObjs;
+            return kindOfPrettyOutput(factomObjs);
         })
         .catch((e) => {
             console.log(e);
-            return factomObjs;
+            return kindOfPrettyOutput(factomObjs);
         });
 
 }
@@ -227,8 +227,28 @@ async function createEntriesInTheOtherStakeholderChains(externalIds, content) {
     }))
     return objArray;
 }
+function kindOfPrettyOutput(factomObjs) {
+    factomObjs.forEach(e => {
+        if (e.outgoingContent) {
+            let externalIdsArray = e.outgoingContent.external_ids;
+            let externalArray = [];
+            externalIdsArray.forEach(i => {
+                externalArray.push(decode64(i));
+            });
+            e.outgoingContent.external_ids = externalArray;
+            e.outgoingContent.content = decode64(e.outgoingContent.content);
+            e.outgoingContent.content = JSON.parse(e.outgoingContent.content);
+        }
+    });
+    return factomObjs;
+}
 function base64(data) {
     let buff = new Buffer(data);
     let base64data = buff.toString('base64');
     return base64data;
+}
+function decode64(data) {
+    let buff = new Buffer(data, 'base64');
+    let text = buff.toString('ascii');
+    return text;
 }
