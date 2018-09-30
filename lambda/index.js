@@ -19,21 +19,89 @@
 const https = require('https');
 
 exports.handler = async (event, context) => {
-    //TODO create base64 fn, get keys for atleast our test user
-    let externalIds = [
+    //TODO: store private data in DynamoDB not chain and real id string for both external ids
+    //TODO: add the appropriate public keys based on the chain owner (store in KMS)
+    let currentTime = new Date().getTime().toString();
+    let appExternalIds = [
         // base64(PUBLIC_KEY),
         // base64(YOUR_PRIVATE_KEY),
         //DynamoDB Partition key
-        base64("DRN00006879"),
+        base64("DRN006879"),
         //DynamoDB sort key
-        // base64("CHANGE_TO_TIME")
+        base64(currentTime)
     ];
-    // let content = base64(event.content);
-    let content = base64("Hello");
-    console.log(externalIds, content);
-    let chain = await createChain(externalIds, content);
-    console.log(JSON.stringify(chain));
-    return "You had " + context.getRemainingTimeInMillis() + " ms remaining.";
+    let initialChainContent = {
+        "appName": "Smart Share",
+        "version": 1,
+        "author": "j",
+        "description": "I am groot"
+    };
+    let initContent = JSON.stringify(initialChainContent);
+    let externalIds = [
+        base64("DRN00009991"),
+        base64(currentTime)
+    ];
+
+    //create the asset chain with info about the app
+    return createChain(appExternalIds, base64(initContent))
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            //store data about the data from the initial form in the asset chain
+            //TODO: seriously no validation of the data from the API!!
+            let content = JSON.stringify(event);
+            return createEntryInAssetChain(obj.dataFromChain.chain_id, externalIds, base64("content"));
+        })
+        //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            let content = JSON.stringify(obj.dataFromChain);
+            return createEntryInAssetChain('49b8359f2105925f150f8c957b97dcf10814443f2695c08c5b866308062a321d', externalIds, base64(content));
+        })
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
+            return createEntryInAssetChain('e7e35f94986071e4bb3328ff062bcfb88f1cc8582a29615bc35ccaca3d0b7891', externalIds, obj.outgoingContent.content);
+        })
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
+            return createEntryInAssetChain('3337d4e65ac6b6a276b9003ffd135c7f4726aeff44484a7286748a31ce254a39', externalIds, obj.outgoingContent.content);
+        })
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
+            return createEntryInAssetChain('3c3cb9e652b3a3656d9b70f6e1c941736349315ec50cfbe9c9e90cbc149eda58', externalIds, obj.outgoingContent.content);
+        })
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
+            return createEntryInAssetChain('2656db34389e008ee49e18faf4f130f5dd42f2265d1268ec0f59256a6d727b6a', externalIds, obj.outgoingContent.content);
+        })
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
+            return createEntryInAssetChain('058258586f2178af69acff782e542a4e1f84dce3d7a7bfd5834f3a9390c58cb7', externalIds, obj.outgoingContent.content);
+        })
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
+            return createEntryInAssetChain('6928f5efd7531025160e9d309d182546a29b0b8d3284766f4d5d6584c25cbe38', externalIds, obj.outgoingContent.content);
+        })
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
+            return createEntryInAssetChain('30b221f597aa1b844f874361b80e6f9b4fd930ff2805a70d7532f3559c4ee8d4', externalIds, obj.outgoingContent.content);
+        })
+
+
+        .then((obj) => {
+            console.log(JSON.stringify(obj));
+            return "You had " + context.getRemainingTimeInMillis() + " ms remaining.";
+        })
+        .catch((e) => {
+            console.log(e);
+            return "You had " + context.getRemainingTimeInMillis() + " ms remaining.";
+        });
 
 }
 
@@ -60,17 +128,17 @@ async function createChain(externalIds, content) {
             res.on('data', (d) => {
                 let str = '';
                 str += d;
-                let dataFromMessenger = JSON.parse(str);
+                let dataFromChain = JSON.parse(str);
                 try {
                     let currentTime = new Date().getTime().toString();
                     let outgoingMessageObj = {
                         outgoing_time: currentTime,
-                        outgoingMessage: json,
-                        dataFromMessenger: dataFromMessenger
+                        outgoingContent: json,
+                        dataFromChain: dataFromChain
                     };
                     resolve(outgoingMessageObj);
                 } catch (ex) {
-                    console.log('problem with sendAll ex: ' + ex);
+                    console.log('problem with createChain ex: ' + ex);
                     reject(ex);
                 }
 
@@ -84,6 +152,78 @@ async function createChain(externalIds, content) {
         req.write(body);
         req.end();
     });
+}
+async function createEntryInAssetChain(chainId, externalIds, content) {
+    return new Promise(function (resolve, reject) {
+        var json = {
+            external_ids: externalIds,
+            content: content
+        }
+        let body = JSON.stringify(json);
+        let path = '/v2/chains/' + chainId + '/entries';
+        let options = {
+            host: "api-2445581893456.production.gw.apicast.io",
+            path: path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'user-key': process.env.FACTOM_API_KEY
+            }
+        };
+
+        let req = https.request(options, (res) => {
+            res.on('data', (d) => {
+                let str = '';
+                str += d;
+                let dataFromChain = JSON.parse(str);
+                try {
+                    let currentTime = new Date().getTime().toString();
+                    let outgoingMessageObj = {
+                        outgoing_time: currentTime,
+                        outgoingContent: json,
+                        dataFromChain: dataFromChain
+                    };
+                    resolve(outgoingMessageObj);
+                } catch (ex) {
+                    console.log('problem with createChain ex: ' + ex);
+                    reject(ex);
+                }
+
+            });
+        });
+
+        req.on('error', (e) => {
+            console.log('problem with request e: ' + e);
+            reject(e);
+        });
+        req.write(body);
+        req.end();
+    });
+}
+//Promise does not work yet
+//add the a dynamodb to look up the chain id based on the other stakeholder chain_ids including users
+//create entry in user(s), broker, insurance, movingCompany, iotDeviceCompany, security, appraisalCompany chains
+async function createEntriesInTheOtherStakeholderChains(externalIds, content) {
+    let stakeholderChainIdArray = [
+        '49b8359f2105925f150f8c957b97dcf10814443f2695c08c5b866308062a321d',
+        'e7e35f94986071e4bb3328ff062bcfb88f1cc8582a29615bc35ccaca3d0b7891',
+        '3337d4e65ac6b6a276b9003ffd135c7f4726aeff44484a7286748a31ce254a39',
+        '3c3cb9e652b3a3656d9b70f6e1c941736349315ec50cfbe9c9e90cbc149eda58',
+        '2656db34389e008ee49e18faf4f130f5dd42f2265d1268ec0f59256a6d727b6a',
+        '058258586f2178af69acff782e542a4e1f84dce3d7a7bfd5834f3a9390c58cb7',
+        '6928f5efd7531025160e9d309d182546a29b0b8d3284766f4d5d6584c25cbe38',
+        '30b221f597aa1b844f874361b80e6f9b4fd930ff2805a70d7532f3559c4ee8d4'
+    ];
+    let objArray = [];
+
+    Promise.all(stakeholderChainIdArray.forEach(e => {
+        createEntryInAssetChain(e, externalIds, content)
+            .then((d) => {
+                objArray.push(d);
+            })
+            .catch(e);
+    }))
+    return objArray;
 }
 function base64(data) {
     let buff = new Buffer(data);

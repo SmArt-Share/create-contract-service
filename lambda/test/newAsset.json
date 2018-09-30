@@ -1,0 +1,75 @@
+{
+    "groupMembers": [
+        {
+            "id": 1,
+            "name": "Amy Kabaria",
+            "paidAmount": 7000,
+            "percentOwnership": 0.5
+        },
+        {
+            "id": 2,
+            "name": "Ashlee Cannon",
+            "paidAmount": 3000,
+            "percentOwnership": 0.5
+        }
+    ],
+    "assetName": "Kanye West Bear",
+    "imgLocation": "https://s3.amazonaws.com/griot-voice-assistant/create-contract-service/image.png",
+    "assetValue": 10000,
+    "broker": {
+        "name": "Cap's Shield",
+        "id": "ROGERS12345"
+    },
+    "insurance": {
+        "company": "Chewbacca Group",
+        "policyNumber": "CHEWBACCA12345"
+    },
+    "movingCompany": {
+        "company": "Han Solo Kessels",
+        "policyNumber": "SOLO12345"
+    },
+    "security": {
+        "company": "Thor's Hammer",
+        "policyNumber": "THOR12345"
+    },
+    "iotDeviceCompany": {
+        "company": "Shuri's Wakandan Emporium",
+        "policyNumber": "SHURI12345"
+    },
+    "appraisalTerms": {
+        "frequency": "YEARLY",
+        "company": "Dr. Strange's Magic Cape",
+        "location": "New York Sanctum Sanctorum"
+    },
+    "termsOfAgreement": {
+        "rotationSchedule": "WEEKLY",
+        "renewalPeriod": "YEARLY",
+        "triggerPrice": 20000,
+        "insuranceTerms": {
+            "minTemperature": 70,
+            "maxTemperature": 75,
+            "maxDirectLumens": 1000,
+            "doesTheSecurityPolicyMeetStandards": true
+        },
+        "insuranceCosts": [
+            0.5,
+            0.5
+        ],
+        "movingCosts": [
+            0.5,
+            0.5
+        ],
+        "securityCosts": [
+            0.5,
+            0.5
+        ],
+        "iotDeviceCompanyCosts": [
+            0,
+            1
+        ],
+        "appraisalCosts": [
+            0.5,
+            0.5
+        ]
+    }
+}
