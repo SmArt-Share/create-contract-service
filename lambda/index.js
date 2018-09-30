@@ -49,7 +49,7 @@ exports.handler = async (event, context) => {
             //store data about the data from the initial form in the asset chain
             //TODO: seriously no validation of the data from the API!!
             let content = JSON.stringify(event);
-            return createEntryInAssetChain(obj.dataFromChain.chain_id, externalIds, base64("content"));
+            return createEntryInAssetChain(obj.dataFromChain.chain_id, externalIds, base64(content));
         })
         //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
         .then((obj) => {
