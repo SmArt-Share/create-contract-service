@@ -56,7 +56,7 @@ exports.handler = async (event, context) => {
         //create the asset chain with info about the app
         return createChain(externalIds, base64(initContent))
             .then((obj) => {
-                factomObjs.push(obj);
+                factomObjs.push(kindOfPrettyOutput(obj));
                 //store data about the data from the initial form in the asset chain
                 //TODO: seriously no validation of the data from the API!!
                 let content = JSON.stringify(event.newAsset);
@@ -64,7 +64,7 @@ exports.handler = async (event, context) => {
             })
             //all other chains use entry hash and chain id to reference the asset entry before about the smart contract
             .then((obj) => {
-                factomObjs.push(obj);
+                factomObjs.push(kindOfPrettyOutput(obj));
                 let content = JSON.stringify({
                     chain_id: factomObjs[0].dataFromChain.chain_id,
                     entry_hash: factomObjs[1].dataFromChain.entry_hash
@@ -72,11 +72,11 @@ exports.handler = async (event, context) => {
                 return createEntriesInTheOtherStakeholderChains(externalIds, base64(content), factomObjs);
             })
             .then((obj) => {
-                return kindOfPrettyOutput(obj);
+                return obj;
             })
             .catch((e) => {
                 console.log(e);
-                return kindOfPrettyOutput(factomObjs);
+                return "An error has occurred";
             });
     } else {
         return "You had " + context.getRemainingTimeInMillis() + " ms remaining.";
@@ -195,32 +195,32 @@ async function createEntriesInTheOtherStakeholderChains(externalIds, content, fa
         '30b221f597aa1b844f874361b80e6f9b4fd930ff2805a70d7532f3559c4ee8d4'
     ];
     let promiseArray = [];
-    stakeholderChainIdArray.forEach(e => {
-        promiseArray.push(createEntryInAssetChain(e, externalIds, content))
+    stakeholderChainIdArray.forEach((e) => {
+        promiseArray.push(createEntryInAssetChain(e, externalIds, content));
     });
 
     return Promise.all(promiseArray)
         .then((obj) => {
             obj.forEach(o => {
-                factomObjs.push(o);
+                factomObjs.push(kindOfPrettyOutput(o));
             })
+            return factomObjs;
         });
 
 }
-function kindOfPrettyOutput(factomObjs) {
-    factomObjs.forEach(e => {
-        if (e.outgoingContent) {
-            let externalIdsArray = e.outgoingContent.external_ids;
-            let externalArray = [];
-            externalIdsArray.forEach(i => {
-                externalArray.push(decode64(i));
-            });
-            e.outgoingContent.external_ids = externalArray;
-            e.outgoingContent.content = decode64(e.outgoingContent.content);
-            e.outgoingContent.content = JSON.parse(e.outgoingContent.content);
-        }
-    });
-    return factomObjs;
+function kindOfPrettyOutput(obj) {
+
+    if (obj.outgoingContent) {
+        let externalIdsArray = obj.outgoingContent.external_ids;
+        let externalArray = [];
+        externalIdsArray.forEach(i => {
+            externalArray.push(decode64(i));
+        });
+        obj.outgoingContent.external_ids = externalArray;
+        obj.outgoingContent.content = decode64(obj.outgoingContent.content);
+        obj.outgoingContent.content = JSON.parse(obj.outgoingContent.content);
+    }
+    return obj;
 }
 function base64(data) {
     let buff = new Buffer(data);
